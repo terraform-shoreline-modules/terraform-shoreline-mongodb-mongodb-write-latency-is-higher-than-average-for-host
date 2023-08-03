@@ -1,0 +1,146 @@
+{
+  "name": "mongodb_write_latency_higher_than_average",
+  "description": "This incident type refers to a situation where the write latency for a MongoDB database is higher than the average. This might cause delays in write operations and can negatively impact the performance of the system. The incident might be triggered by an alert that indicates that the write latency has exceeded a certain threshold, and it requires immediate attention from a software engineer to identify and resolve the underlying issue. The incident can be resolved by identifying and fixing the root cause of the latency issue, and ensuring that the system is functioning within acceptable performance parameters.",
+  "params": [
+    {
+      "name": "MONGODB_USERNAME",
+      "value": ""
+    },
+    {
+      "name": "MONGODB_PASSWORD",
+      "value": ""
+    },
+    {
+      "name": "MONGODB_PORT",
+      "value": ""
+    },
+    {
+      "name": "IP_ADDRESS",
+      "value": ""
+    },
+    {
+      "name": "SERVER_ADDRESS",
+      "value": ""
+    },
+    {
+      "name": "MONGODB_HOST",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## MongoDB Write Latency Higher Than Average\nThis incident type refers to a situation where the write latency for a MongoDB database is higher than the average. This might cause delays in write operations and can negatively impact the performance of the system. The incident might be triggered by an alert that indicates that the write latency has exceeded a certain threshold, and it requires immediate attention from a software engineer to identify and resolve the underlying issue. The incident can be resolved by identifying and fixing the root cause of the latency issue, and ensuring that the system is functioning within acceptable performance parameters."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if MongoDB is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status mongodb`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if MongoDB is listening on the correct port"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `netstat -tln | grep ${MONGODB_PORT}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check for any errors in the MongoDB log file"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -n 100 /var/log/mongodb/mongodb.log`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the MongoDB replica set"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `mongo --host ${MONGODB_HOST} --port ${MONGODB_PORT} --eval \"rs.status()\"`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the latency of MongoDB writes"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_get_ip_latency($MONGODB_USERNAME, $MONGODB_PASSWORD, $MONGODB_PORT, $IP_ADDRESS, $MONGODB_HOST)"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the disk space usage of the MongoDB server"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `df -h /var/lib/mongodb`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the CPU and memory usage of the MongoDB process"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `top -p $(pidof mongod)`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any long-running queries or operations that are causing the high write latency, optimize or terminate them if possible."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_mongo_long_running_queries_terminator($SERVER_ADDRESS)"
+    }
+  ]
+}

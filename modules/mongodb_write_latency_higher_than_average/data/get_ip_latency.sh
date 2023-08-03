@@ -1,0 +1,3 @@
+mongo --host ${MONGODB_HOST} --port ${MONGODB_PORT} --eval "db.getSiblingDB('admin').runCommand({whatsmyuri: 1}).you" # get the IP address of the current connection
+
+mongostat --host ${MONGODB_HOST} --port ${MONGODB_PORT} --discover --authenticationDatabase admin --username ${MONGODB_USERNAME} --password ${MONGODB_PASSWORD} --rowcount 1 --noheaders | grep ${IP_ADDRESS} | awk '{print $NF}' # get the write latency of the current connection
